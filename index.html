@@ -1,10 +1,114 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>My Project</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Attendance Pro</title>
+
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial, Helvetica, sans-serif;
+}
+
+body{
+height:100vh;
+display:flex;
+align-items:center;
+justify-content:center;
+background:linear-gradient(135deg,#294a8a,#2c6ac9);
+}
+
+.container{
+width:350px;
+background:rgba(255,255,255,0.1);
+padding:30px;
+border-radius:12px;
+backdrop-filter:blur(10px);
+box-shadow:0 10px 30px rgba(0,0,0,0.3);
+color:white;
+}
+
+.container h1{
+text-align:center;
+margin-bottom:10px;
+}
+
+.container p{
+text-align:center;
+font-size:14px;
+margin-bottom:20px;
+opacity:0.8;
+}
+
+.input-group{
+margin-bottom:15px;
+}
+
+.input-group label{
+font-size:14px;
+}
+
+.input-group input{
+width:100%;
+padding:10px;
+margin-top:5px;
+border:none;
+border-radius:6px;
+outline:none;
+}
+
+button{
+width:100%;
+padding:12px;
+border:none;
+border-radius:8px;
+background:linear-gradient(90deg,#4a7df0,#5a4ae3);
+color:white;
+font-size:16px;
+cursor:pointer;
+transition:0.3s;
+}
+
+button:hover{
+opacity:0.9;
+}
+
+.default{
+margin-top:15px;
+font-size:12px;
+text-align:center;
+opacity:0.7;
+}
+</style>
 </head>
+
 <body>
-<h1>Hello World</h1>
-<p>My GitHub Pages site is working.</p>
+
+<div class="container">
+
+<h1>Attendance Pro</h1>
+<p>Sign in to manage attendance</p>
+
+<div class="input-group">
+<label>Username</label>
+<input type="text" placeholder="Enter username">
+</div>
+
+<div class="input-group">
+<label>Password</label>
+<input type="password" placeholder="Enter password">
+</div>
+
+<button>Login</button>
+
+<div class="default">
+Default login: admin / admin
+</div>
+
+</div>
+
 </body>
 </html>
