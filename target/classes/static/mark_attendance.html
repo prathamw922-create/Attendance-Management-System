@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mark Attendance - Attendance System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background: #0f172a;
+        }
+
+        .glass-nav {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .card-3d {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            background: linear-gradient(145deg, #1e293b, #0f172a);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 1.5rem;
+        }
+
+        table {
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        th {
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        tr {
+            transition: all 0.2s ease;
+        }
+
+        tr:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+    </style>
+</head>
+
+<body class="text-gray-100 font-sans min-h-screen flex flex-col">
+
+    <!-- Navbar -->
+    <nav class="glass-nav sticky top-0 z-50 px-6 py-4 flex justify-between items-center">
+        <div
+            class="text-2xl font-extrabold tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500 hover:scale-105 transition transform cursor-pointer">
+            Attendance Pro
+        </div>
+        <div class="space-x-4">
+            <a href="dashboard.html" class="text-gray-300 hover:text-white transition">Dashboard</a>
+            <a href="mark_attendance.html" class="text-blue-400 font-semibold drop-shadow-md">Mark Attendance</a>
+            <a href="view_attendance.html" class="text-gray-300 hover:text-white transition">View Records</a>
+            <a href="index.html"
+                class="bg-red-500 hover:bg-red-600 px-4 py-2 rounded-lg font-bold shadow-lg transition">Logout</a>
+        </div>
+    </nav>
+
+    <!-- Content -->
+    <div class="p-8 flex-1 w-full max-w-5xl mx-auto">
+        <h2 class="text-4xl font-bold mb-8 drop-shadow-lg text-center">Mark Daily Attendance</h2>
+
+        <div class="card-3d p-8">
+            <div class="flex flex-col md:flex-row justify-between items-center mb-6">
+                <div class="flex items-center space-x-4">
+                    <label class="font-bold text-gray-300 text-lg">Select Date:</label>
+                    <input type="date" id="att-date"
+                        class="bg-gray-800 text-white px-4 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-inner">
+                </div>
+            </div>
+
+            <div class="overflow-x-auto rounded-xl border border-gray-700 shadow-lg">
+                <table class="w-full text-left" id="attendance-table">
+                    <thead>
+                        <tr class="text-gray-400 uppercase text-sm tracking-widest border-b border-gray-700">
+                            <th class="px-6 py-4">Roll No</th>
+                            <th class="px-6 py-4">Name</th>
+                            <th class="px-6 py-4">Class</th>
+                            <th class="px-6 py-4 text-center">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="student-list" class="divide-y divide-gray-800">
+                        <!-- Student rows -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="mt-8 flex justify-end">
+                <button onclick="submitAttendance()"
+                    class="bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-400 hover:to-teal-400 text-white px-8 py-3 rounded-xl font-bold shadow-lg hover:shadow-2xl hover:-translate-y-1 transform transition duration-300">
+                    ✅ Submit Attendance
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8089';
+        let studentsData = [];
+
+        // Set default date to today
+        document.getElementById('att-date').valueAsDate = new Date();
+
+        async function loadStudents() {
+            try {
+                const res = await fetch(`${API_BASE}/students`);
+                studentsData = await res.json();
+
+                const trHTML = studentsData.map(student => `
+                    <tr>
+                        <td class="px-6 py-4 font-semibold">${student.rollNo}</td>
+                        <td class="px-6 py-4">${student.name}</td>
+                        <td class="px-6 py-4 text-gray-400">${student.className || '-'}</td>
+                        <td class="px-6 py-4 text-center">
+                            <select id="status-${student.id}" class="bg-gray-800 text-white font-bold px-4 py-2 rounded-lg border border-gray-600 focus:ring-2 focus:ring-blue-500 outline-none cursor-pointer">
+                                <option value="Present" class="text-green-400">Present</option>
+                                <option value="Absent" class="text-red-400">Absent</option>
+                                <option value="Late" class="text-yellow-400">Late</option>
+                            </select>
+                        </td>
+                    </tr>
+                `).join('');
+                document.getElementById('student-list').innerHTML = trHTML;
+            } catch (err) {
+                console.error("Failed to load students", err);
+            }
+        }
+
+        async function submitAttendance() {
+            const date = document.getElementById('att-date').value;
+            if (!date) return alert("Please select a date.");
+
+            const attendanceRequests = studentsData.map(student => {
+                const status = document.getElementById(`status-${student.id}`).value;
+                return {
+                    studentId: student.id,
+                    subjectId: 1, // Defaulting subject
+                    date: date,
+                    status: status
+                };
+            });
+
+            try {
+                const res = await fetch(`${API_BASE}/attendance`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(attendanceRequests)
+                });
+
+                if (res.ok) {
+                    alert("Attendance marked successfully!");
+                } else {
+                    alert("Failed to mark attendance.");
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Server error.");
+            }
+        }
+
+        window.onload = loadStudents;
+    </script>
+</body>
+
+</html>

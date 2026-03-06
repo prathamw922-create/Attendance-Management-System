@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Attendance System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background: #0f172a;
+        }
+
+        /* Slate 900 */
+        .glass-nav {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .card-3d {
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease;
+            box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            background: linear-gradient(145deg, #1e293b, #0f172a);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 1.5rem;
+        }
+
+        .card-3d:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        .icon-container {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.5);
+        }
+    </style>
+</head>
+
+<body class="text-gray-100 font-sans min-h-screen flex flex-col">
+
+    <!-- Navbar -->
+    <nav class="glass-nav sticky top-0 z-50 px-6 py-4 flex justify-between items-center">
+        <div
+            class="text-2xl font-extrabold tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500 hover:scale-105 transition transform cursor-pointer">
+            Attendance Pro
+        </div>
+        <div class="space-x-4">
+            <a href="dashboard.html" class="text-blue-400 font-semibold drop-shadow-md">Dashboard</a>
+            <a href="mark_attendance.html" class="text-gray-300 hover:text-white transition">Mark Attendance</a>
+            <a href="view_attendance.html" class="text-gray-300 hover:text-white transition">View Records</a>
+            <a href="index.html"
+                class="bg-red-500 hover:bg-red-600 px-4 py-2 rounded-lg font-bold shadow-lg transition">Logout</a>
+        </div>
+    </nav>
+
+    <!-- Content -->
+    <div class="p-8 flex-1 w-full max-w-7xl mx-auto">
+        <h2 class="text-4xl font-bold mb-8 drop-shadow-lg">Dashboard Overview</h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- Total Students Card -->
+            <div class="card-3d p-6 relative overflow-hidden group">
+                <div
+                    class="absolute -right-10 -top-10 w-32 h-32 bg-blue-500 rounded-full opacity-20 blur-2xl group-hover:bg-blue-400 transition">
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div
+                        class="icon-container w-14 h-14 rounded-2xl flex items-center justify-center text-2xl font-bold">
+                        👨‍🎓
+                    </div>
+                    <div>
+                        <p class="text-gray-400 font-semibold mb-1">Total Students</p>
+                        <h3 class="text-3xl font-extrabold" id="total-students">...</h3>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Total Attendance Marked -->
+            <div class="card-3d p-6 relative overflow-hidden group">
+                <div
+                    class="absolute -right-10 -top-10 w-32 h-32 bg-green-500 rounded-full opacity-20 blur-2xl group-hover:bg-green-400 transition">
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="icon-container w-14 h-14 rounded-2xl flex items-center justify-center text-2xl font-bold"
+                        style="background: linear-gradient(135deg, #10b981, #3b82f6);">
+                        ✅
+                    </div>
+                    <div>
+                        <p class="text-gray-400 font-semibold mb-1">Attendance Records</p>
+                        <h3 class="text-3xl font-extrabold" id="total-attendance">...</h3>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Present Rate -->
+            <div class="card-3d p-6 relative overflow-hidden group">
+                <div
+                    class="absolute -right-10 -top-10 w-32 h-32 bg-purple-500 rounded-full opacity-20 blur-2xl group-hover:bg-purple-400 transition">
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="icon-container w-14 h-14 rounded-2xl flex items-center justify-center text-2xl font-bold"
+                        style="background: linear-gradient(135deg, #f59e0b, #ef4444);">
+                        📈
+                    </div>
+                    <div>
+                        <p class="text-gray-400 font-semibold mb-1">Present Rate</p>
+                        <h3 class="text-3xl font-extrabold" id="present-rate">...</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Student Section -->
+        <div class="mt-12 card-3d p-8">
+            <h3 class="text-2xl font-bold mb-6">Quick Add Student</h3>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <input type="text" id="rollNo" placeholder="Roll No"
+                    class="bg-gray-800 text-white px-4 py-3 rounded-xl border border-gray-700 focus:outline-none focus:border-blue-500 shadow-inner">
+                <input type="text" id="name" placeholder="Student Name"
+                    class="bg-gray-800 text-white px-4 py-3 rounded-xl border border-gray-700 focus:outline-none focus:border-blue-500 shadow-inner">
+                <input type="text" id="email" placeholder="Email"
+                    class="bg-gray-800 text-white px-4 py-3 rounded-xl border border-gray-700 focus:outline-none focus:border-blue-500 shadow-inner">
+                <input type="text" id="className" placeholder="Class"
+                    class="bg-gray-800 text-white px-4 py-3 rounded-xl border border-gray-700 focus:outline-none focus:border-blue-500 shadow-inner">
+            </div>
+            <button onclick="addStudent()"
+                class="mt-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 px-6 py-3 rounded-xl font-bold shadow-lg transform hover:-translate-y-1 transition duration-300">
+                + Add Student
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8089';
+
+        async function loadStats() {
+            try {
+                const stdRes = await fetch(`${API_BASE}/students`);
+                const students = await stdRes.json();
+                document.getElementById('total-students').innerText = students.length;
+
+                const attRes = await fetch(`${API_BASE}/attendance`);
+                const attendance = await attRes.json();
+                document.getElementById('total-attendance').innerText = attendance.length;
+
+                if (attendance.length > 0) {
+                    const present = attendance.filter(a => a.status === 'Present').length;
+                    const rate = Math.round((present / attendance.length) * 100);
+                    document.getElementById('present-rate').innerText = rate + '%';
+                } else {
+                    document.getElementById('present-rate').innerText = '0%';
+                }
+            } catch (err) {
+                console.error("Error loading stats:", err);
+            }
+        }
+
+        async function addStudent() {
+            const rollNo = document.getElementById('rollNo').value;
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const className = document.getElementById('className').value;
+
+            if (!rollNo || !name) return alert("Roll No and Name are required!");
+
+            const student = { rollNo, name, email, className };
+
+            try {
+                const res = await fetch(`${API_BASE}/students`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(student)
+                });
+                if (res.ok) {
+                    alert('Student added successfully!');
+                    loadStats();
+                } else {
+                    alert('Failed to add student');
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        window.onload = loadStats;
+    </script>
+</body>
+
+</html>

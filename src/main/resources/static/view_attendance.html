@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Attendance - Attendance System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background: #0f172a;
+        }
+
+        .glass-nav {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .card-3d {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            background: linear-gradient(145deg, #1e293b, #0f172a);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 1.5rem;
+        }
+
+        table {
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        th {
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        tr {
+            transition: all 0.2s ease;
+        }
+
+        tr:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+    </style>
+</head>
+
+<body class="text-gray-100 font-sans min-h-screen flex flex-col">
+
+    <!-- Navbar -->
+    <nav class="glass-nav sticky top-0 z-50 px-6 py-4 flex justify-between items-center">
+        <div
+            class="text-2xl font-extrabold tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500 hover:scale-105 transition transform cursor-pointer">
+            Attendance Pro
+        </div>
+        <div class="space-x-4">
+            <a href="dashboard.html" class="text-gray-300 hover:text-white transition">Dashboard</a>
+            <a href="mark_attendance.html" class="text-gray-300 hover:text-white transition">Mark Attendance</a>
+            <a href="view_attendance.html" class="text-blue-400 font-semibold drop-shadow-md">View Records</a>
+            <a href="index.html"
+                class="bg-red-500 hover:bg-red-600 px-4 py-2 rounded-lg font-bold shadow-lg transition">Logout</a>
+        </div>
+    </nav>
+
+    <!-- Content -->
+    <div class="p-8 flex-1 w-full max-w-6xl mx-auto">
+        <div class="flex justify-between items-center mb-8">
+            <h2 class="text-4xl font-bold drop-shadow-lg">Attendance Records</h2>
+            <button onclick="loadRecords()"
+                class="bg-blue-600 hover:bg-blue-500 px-5 py-2 rounded-lg shadow-lg font-semibold flex items-center space-x-2 transition">
+                <span>🔄</span> <span>Refresh</span>
+            </button>
+        </div>
+
+        <div class="card-3d p-6">
+            <div class="overflow-x-auto rounded-xl border border-gray-700 shadow-lg">
+                <table class="w-full text-left" id="records-table">
+                    <thead>
+                        <tr class="text-gray-400 uppercase text-sm tracking-widest border-b border-gray-700">
+                            <th class="px-6 py-4">Date</th>
+                            <th class="px-6 py-4">Roll No</th>
+                            <th class="px-6 py-4">Student Name</th>
+                            <th class="px-6 py-4">Subject</th>
+                            <th class="px-6 py-4 text-center">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="records-list" class="divide-y divide-gray-800">
+                        <!-- Records -->
+                        <tr>
+                            <td colspan="5" class="px-6 py-4 text-center text-gray-500">Loading...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8089';
+
+        async function loadRecords() {
+            try {
+                const res = await fetch(`${API_BASE}/attendance`);
+                const records = await res.json();
+
+                if (records.length === 0) {
+                    document.getElementById('records-list').innerHTML = `
+                        <tr><td colspan="5" class="px-6 py-8 text-center text-gray-500 font-semibold">No attendance records found.</td></tr>
+                    `;
+                    return;
+                }
+
+                // Sorting recent first
+                records.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+                const trHTML = records.map(record => {
+                    let statusColor = "text-gray-400";
+                    if (record.status === "Present") statusColor = "text-green-400 bg-green-400/10";
+                    else if (record.status === "Absent") statusColor = "text-red-400 bg-red-400/10";
+                    else if (record.status === "Late") statusColor = "text-yellow-400 bg-yellow-400/10";
+
+                    return `
+                    <tr>
+                        <td class="px-6 py-4 font-bold text-gray-300">${record.date}</td>
+                        <td class="px-6 py-4">${record.student?.rollNo || '-'}</td>
+                        <td class="px-6 py-4 text-blue-300 font-semibold">${record.student?.name || 'Unknown'}</td>
+                        <td class="px-6 py-4 text-gray-400">${record.subject?.subjectName || '-'}</td>
+                        <td class="px-6 py-4 text-center">
+                            <span class="inline-block px-3 py-1 rounded-full font-bold text-sm ${statusColor}">
+                                ${record.status}
+                            </span>
+                        </td>
+                    </tr>
+                `}).join('');
+                document.getElementById('records-list').innerHTML = trHTML;
+            } catch (err) {
+                console.error("Failed to load records", err);
+                document.getElementById('records-list').innerHTML = `
+                        <tr><td colspan="5" class="px-6 py-4 text-center text-red-500 border border-red-500 bg-red-900/20">Error loading data. Is the server running?</td></tr>
+                    `;
+            }
+        }
+
+        window.onload = loadRecords;
+    </script>
+</body>
+
+</html>
